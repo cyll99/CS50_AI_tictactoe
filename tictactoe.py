@@ -2,6 +2,7 @@
 Tic Tac Toe Player
 """
 
+import copy
 import math
 
 X = "X"
@@ -27,8 +28,9 @@ def player(board):
     for row in board:
         x += row.count(X)
         o += row.count(O)
-    if (x == 0 and o == 0) or x < o:
+    if (x == 0 and o == 0) or x == o:
         return X
+
     return O
 
    
@@ -43,20 +45,20 @@ def actions(board):
         for j in range(3):
             if board[i][j] == EMPTY:
                 list_actions.add((i,j))
+    print(f"list of actions : {list_actions}")
     return list_actions
 
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    copy_board = board
     i,j = action[0], action[1]
     try:
-        copy_board[i][j] = player(board)
-        print(f"this is the result: {action}, {board}")
+        board[i][j] = player(board)
     except:
-        board[i][j] is not EMPTY
-    return copy_board
+        # board[i][j] is not EMPTY
+        print('already taken')
+    return board
 
 def wins(player, board):
     """ 
@@ -107,53 +109,58 @@ def utility(board):
     return
 
 def minimax_beta(board):
-    if terminal(board):
-        return utility(board)
-    copy_board = board
-    if player(board) == X:
+    copy_board = copy.deepcopy(board)
+
+    if terminal(copy_board):
+        return utility(copy_board)
+    if player(copy_board) == X:
         best = -1000
         for action in actions(copy_board):
             
-            copy_board = result(board,action)
+            copy_board = result(copy_board,action)
         
-            best = max(best, minimax_beta(board))
+            best = max(best, minimax_beta(copy_board))
+            copy_board = board
         return best
     else:
         best = 1000
         for action in actions(copy_board):
             
-            copy_board = result(board,action)
+            copy_board = result(copy_board,action)
         
-            best = min(best, minimax_beta(board))
+            best = min(best, minimax_beta(copy_board))
+            copy_board = board
         return best
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    copy_board = board
+    copy_board = copy.deepcopy(board)
 
-    if player(board) == X:
+    if player(copy_board) == X:
         optimal_action = (-1,-1)
         best = -1000
         for action in actions(copy_board):
             
-            copy_board = result(board,action)
+            copy_board = result(copy_board,action)
             value = minimax_beta(copy_board)
             if value> best:
                 best = value
                 optimal_action = action
+        print(f"optimal action : {optimal_action}")
         return optimal_action
     else:
         optimal_action = (-1,-1)
         best = 1000
         for action in actions(copy_board):
             
-            copy_board = result(board,action)
+            copy_board = result(copy_board,action)
         
             value = minimax_beta(copy_board)
             if value < best:
                 best = value
                 optimal_action = action
+        print(f"optimal action : {optimal_action}")
         return optimal_action
 
