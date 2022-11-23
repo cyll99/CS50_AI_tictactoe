@@ -52,13 +52,14 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
+    copy_board = copy.deepcopy(board)
     i,j = action[0], action[1]
-    try:
-        board[i][j] = player(board)
-    except:
-        # board[i][j] is not EMPTY
-        print('already taken')
-    return board
+    if copy_board[i][j] is not EMPTY:
+        raise Exception("Cell already taken")
+    else:
+        copy_board[i][j] = player(board)
+   
+    return copy_board
 
 def wins(player, board):
     """ 
@@ -108,59 +109,68 @@ def utility(board):
         return 0
     return
 
-def minimax_beta(board):
-    copy_board = copy.deepcopy(board)
+def minimax_beta(board, maximum, minimum, isMax):
+    # copy_board = copy.deepcopy(board)
 
-    if terminal(copy_board):
-        return utility(copy_board)
-    if player(copy_board) == X:
+    if terminal(board):
+        return utility(board)
+
+    if isMax:
         best = -1000
-        for action in actions(copy_board):
+        for action in actions(board):
             
-            copy_board = result(copy_board,action)
-        
-            best = max(best, minimax_beta(copy_board))
-            copy_board = board
+            best = max(best, minimax_beta(result(board,action),maximum, minimum, False))
+            maximum = max(maximum, best)
+            if maximum >= minimum:
+                break
         return best
+
     else:
         best = 1000
-        for action in actions(copy_board):
+        for action in actions(board):
             
-            copy_board = result(copy_board,action)
         
-            best = min(best, minimax_beta(copy_board))
-            copy_board = board
+            best = min(best, minimax_beta(result(board,action),maximum, minimum, True))
+            minimum = min(minimum, best)
+            if maximum >= minimum:
+                break
+
+
+
         return best
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    copy_board = copy.deepcopy(board)
+    if terminal(board) : return None
+    optimal_action = (-1,-1)
+    maximum = -1000
+    minimum = 1000
 
-    if player(copy_board) == X:
-        optimal_action = (-1,-1)
+    if player(board) == X:
         best = -1000
-        for action in actions(copy_board):
+        for action in actions(board):
             
-            copy_board = result(copy_board,action)
-            value = minimax_beta(copy_board)
+            value = minimax_beta(result(board,action),maximum, minimum, False)
+            maximum = max(best, value)
             if value> best:
                 best = value
                 optimal_action = action
         print(f"optimal action : {optimal_action}")
+        print(f"value of the best move: {best}")
+
         return optimal_action
     else:
-        optimal_action = (-1,-1)
         best = 1000
-        for action in actions(copy_board):
-            
-            copy_board = result(copy_board,action)
-        
-            value = minimax_beta(copy_board)
+        for action in actions(board):
+                    
+            value = minimax_beta(result(board,action),maximum, minimum, True)
+            minimum = min(best, value)
             if value < best:
                 best = value
                 optimal_action = action
         print(f"optimal action : {optimal_action}")
+        print(f"value of the best move: {best}")
         return optimal_action
 
