@@ -8,6 +8,7 @@ import math
 X = "X"
 O = "O"
 EMPTY = None
+INFINITY = 1000
 
 
 def initial_state():
@@ -45,7 +46,6 @@ def actions(board):
         for j in range(3):
             if board[i][j] == EMPTY:
                 list_actions.add((i,j))
-    print(f"list of actions : {list_actions}")
     return list_actions
 
 def result(board, action):
@@ -75,7 +75,7 @@ def wins(player, board):
 
 def board_full(board):
     """
-    Returns true if the board is full
+    Returns true if there are no more moves left
     """
     for i in range(3):
         for j in range(3):
@@ -110,13 +110,14 @@ def utility(board):
     return
 
 def minimax_beta(board, maximum, minimum, isMax):
-    # copy_board = copy.deepcopy(board)
-
+    """
+    Returns the value of the best move
+    """
     if terminal(board):
         return utility(board)
 
     if isMax:
-        best = -1000
+        best = -INFINITY
         for action in actions(board):
             
             best = max(best, minimax_beta(result(board,action),maximum, minimum, False))
@@ -126,7 +127,7 @@ def minimax_beta(board, maximum, minimum, isMax):
         return best
 
     else:
-        best = 1000
+        best = INFINITY
         for action in actions(board):
             
         
@@ -145,11 +146,11 @@ def minimax(board):
     """
     if terminal(board) : return None
     optimal_action = (-1,-1)
-    maximum = -1000
-    minimum = 1000
+    maximum = -INFINITY
+    minimum = INFINITY
 
     if player(board) == X:
-        best = -1000
+        best = -INFINITY
         for action in actions(board):
             
             value = minimax_beta(result(board,action),maximum, minimum, False)
@@ -157,12 +158,11 @@ def minimax(board):
             if value> best:
                 best = value
                 optimal_action = action
-        print(f"optimal action : {optimal_action}")
-        print(f"value of the best move: {best}")
+   
 
         return optimal_action
     else:
-        best = 1000
+        best = INFINITY
         for action in actions(board):
                     
             value = minimax_beta(result(board,action),maximum, minimum, True)
@@ -170,7 +170,6 @@ def minimax(board):
             if value < best:
                 best = value
                 optimal_action = action
-        print(f"optimal action : {optimal_action}")
-        print(f"value of the best move: {best}")
+       
         return optimal_action
 
